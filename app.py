@@ -1,12 +1,12 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-
+import db_conn
 
 app = Flask(__name__)
 app.config[
     "SQLALCHEMY_DATABASE_URI"
-] = postgresql://scott:tiger@localhost/mydatabase
+] = f"postgresql://postgres:{db_conn.db_password}@localhost:5432/{db_conn.db_name}"
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
