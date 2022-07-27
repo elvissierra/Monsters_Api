@@ -95,7 +95,7 @@ def monster_handler(monster_id):
         return {"message": f"the monster {monster.name} has been updated"}
 
     elif request.method == "DELETE":
-        db.session.delete(car)
+        db.session.delete(monster)
         db.session.commit()
 
         return {"message": f"Monster {monster.name} has been deleted."}
