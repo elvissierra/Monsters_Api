@@ -1,4 +1,6 @@
-from flask import Flask
+from lzma import MODE_FAST
+from re import L
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import db_conn
@@ -33,6 +35,70 @@ class Monsters(db.Model):
 @app.route("/")
 def home():
     return {"ayy": "yyo"}
+
+
+@app.route("/monsters", methods=["POST", "GET"])
+def handle_monsters():
+    if request.method == "POST":
+        if request.is_json:
+            data = request.get_json()
+            new_monster = Monsters(
+                name=data["name"],
+                nature=data["nature"],
+                ability=data["ability"],
+                attack=data["attack"],
+            )
+            db.session.add(new_monster)
+            db.session.commit()
+            return {"message": f" The monster {new_monster.name} has been creatd."}
+        else:
+            return {"error": "There was an issue creating the monster."}
+
+    elif request.method == "GET":
+        monster = Monsters.query.all()
+        results = [
+            {
+                "name": monster.name,
+                "nature": monster.nature,
+                "ability": monster.ability,
+                "attack": monster.attack,
+            }
+            for monster in Monsters
+        ]
+
+        return {"count": len(results), "monsters": results}
+
+
+@app.route("/monsters/<monster_id>", methods=["GET", "PUT", "DELETE"])
+def monster_handler(monster_id):
+    monster = Monsters.query.get_or_404(monster_id)
+
+    if request.method == "GET":
+        response = {
+            "name": monster.name,
+            "nature": monster.nature,
+            "ability": monster.ability,
+            "attack": monster.attack,
+        }
+        return {"message": "success", "monster": response}
+
+    elif request.method == "PUT":
+        data = request.get_json()
+        monster.name = data["name"]
+        monster.nature = data["nature"]
+        monster.ability = data["ability"]
+        monster.attack = data["attack"]
+
+        db.session.add(monster)
+        db.session.commit()
+
+        return {"message": f"the monster {monster.name} has been updated"}
+
+    elif request.method == "DELETE":
+        db.session.delete(car)
+        db.session.commit()
+
+        return {"message": f"Monster {monster.name} has been deleted."}
 
 
 if __name__ == "__main__":
